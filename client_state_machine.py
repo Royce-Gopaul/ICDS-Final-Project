@@ -5,7 +5,6 @@ Created on Sun Apr  5 00:00:32 2015
 """
 from chat_utils import *
 from tkinter import *
-import random
 import json
 import tictactoegame
 
@@ -50,6 +49,14 @@ class ClientSM:
         mysend(self.s, msg)
         self.out_msg += 'You are disconnected from ' + self.peer + '\n'
         self.peer = ''
+
+    def play_game(self,host):
+        game = tictactoegame.Game()
+        if host:
+            game.host_game('127.0.0.1', 0)  # Host a game
+        else:
+            game.connect_game('127.0.0.1', 0)  # Connect to a game
+        game.run()
 
     def proc(self, my_msg, peer_msg):
         self.out_msg = ''
@@ -147,6 +154,9 @@ class ClientSM:
                     self.disconnect()
                     self.state = S_LOGGEDIN
                     self.peer = ''
+                elif my_msg == 'play':
+                    #play game
+                    self.play_game(True)
 
             if len(peer_msg) > 0:    # peer's stuff, coming in
 
@@ -156,6 +166,9 @@ class ClientSM:
                     self.out_msg += "(" + peer_msg["from"] + " joined)\n"
                 elif peer_msg["action"] == "disconnect":
                     self.state = S_LOGGEDIN
+                elif peer_msg["action"] == "exchange":
+                    if peer_msg["message"] == 'play':
+                        self.play_game(False)
                 else:
                     self.out_msg += peer_msg["from"] + peer_msg["message"]
 
