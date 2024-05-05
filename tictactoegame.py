@@ -5,12 +5,14 @@
 #Note: referenced https://youtu.be/V9MbQ2Xl4CE?si=q0t2VwgGzyCiInIj
 
 from tkinter import *
+import socket
+import threading
 
-CHAT_IP = '127.0.0.1'
-# CHAT_IP = socket.gethostbyname(socket.gethostname())
+# CHAT_IP = '127.0.0.1'
+CHAT_IP = socket.gethostbyname(socket.gethostname())
 
-CHAT_PORT = 1112
-SERVER = (CHAT_IP, CHAT_PORT)
+# CHAT_PORT = 1112
+# SERVER = (CHAT_IP, CHAT_PORT)
 
 class Game:
 
@@ -19,13 +21,10 @@ class Game:
         self._players = ["O","X"]
         self._turn = self._players[0]
 
-
         self.window = Tk()
         self.window.title("Tic-Tac-Toe")
 
-        self._board = [[0,0,0],
-                [0,0,0],
-                [0,0,0]]
+        self._board = [[" "," "," "],[" "," "," "],[" "," "," "]]
         
         self.label = Label(text=self._turn + " turn", font=('Times',40))
         self.label.pack(side="top")
@@ -43,6 +42,31 @@ class Game:
         restart.pack(side="top")
 
         #score = 1,-1,0
+    
+    def host_game(self,host,port):
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server.bind((host,port))
+        server.listen(1)
+
+        self._turn = "O"
+
+        client,addr = server.accept()
+
+        threading.Thread(target=self.handle_connection,args=(client,)).start()
+        self.run()
+        server.close()
+
+    def connect_game(self,host,port):
+        client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        client.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        client.connect((host,port))
+
+        self._turn = "X"
+
+        threading.Thread(target=self.handle_connection,args=(client,)).start()
+        self.run()
+ 
 
     def evaluate(self):
         #Evaluates the board situation (if anyone won)
