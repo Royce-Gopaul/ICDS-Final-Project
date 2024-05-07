@@ -7,6 +7,7 @@ from chat_utils import *
 from tkinter import *
 import json
 import tictactoegame
+import snake
 
 class ClientSM:
     def __init__(self, s):
@@ -57,6 +58,10 @@ class ClientSM:
         else:
             game.connect_game('127.0.0.1', 0)  # Connect to a game
         game.run()
+    
+    def snake(self):
+        snakegame = snake.SnakeGame()
+        snakegame.play()
 
     def proc(self, my_msg, peer_msg):
         self.out_msg = ''
@@ -119,6 +124,19 @@ class ClientSM:
                     
                     game = tictactoegame.Game()
                     game.run()
+                
+                elif my_msg[0] == 's':
+                    game2 = snake.SnakeGame()
+                    game2.play()
+                    
+                    # peer = my_msg[1:]
+                    # peer = peer.strip()
+                    # if self.connect_to(peer) == True:
+                    #     self.state = S_GAMING
+                    #     self.out_msg += 'Connect to ' + peer + '. Game away!\n\n'
+                    #     self.out_msg += '-----------------------------------\n'
+                    # else:
+                    #     self.out_msg += 'Connection unsuccessful\n'
 
                 else:
                     self.out_msg += menu
@@ -146,6 +164,9 @@ class ClientSM:
 # Start chatting, 'bye' for quit
 # This is event handling instate "S_CHATTING"
 # ==============================================================================
+        elif self.state == S_GAMING:
+            self.snake()
+        
         elif self.state == S_CHATTING:
             if len(my_msg) > 0:     # my stuff going out
                 mysend(self.s, json.dumps(
@@ -156,7 +177,9 @@ class ClientSM:
                     self.peer = ''
                 elif my_msg == 'play':
                     #play game
-                    self.play_game(True)
+                    #self.play_game(True)
+                    self.state = S_GAMING
+                    self.peer = ''
 
             if len(peer_msg) > 0:    # peer's stuff, coming in
 
@@ -166,9 +189,6 @@ class ClientSM:
                     self.out_msg += "(" + peer_msg["from"] + " joined)\n"
                 elif peer_msg["action"] == "disconnect":
                     self.state = S_LOGGEDIN
-                elif peer_msg["action"] == "exchange":
-                    if peer_msg["message"] == 'play':
-                        self.play_game(False)
                 else:
                     self.out_msg += peer_msg["from"] + peer_msg["message"]
 
@@ -177,6 +197,7 @@ class ClientSM:
             # Display the menu again
             if self.state == S_LOGGEDIN:
                 self.out_msg += menu
+
 # ==============================================================================
 # invalid state
 # ==============================================================================
