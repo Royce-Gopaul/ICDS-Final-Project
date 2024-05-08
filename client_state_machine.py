@@ -165,7 +165,10 @@ class ClientSM:
 # This is event handling instate "S_CHATTING"
 # ==============================================================================
         elif self.state == S_GAMING:
-            self.snake()
+            game = tictactoegame.Game()
+            game.run()
+            if game.evaluate() == 1 or -1:
+                self.state = S_CHATTING
         
         elif self.state == S_CHATTING:
             if len(my_msg) > 0:     # my stuff going out
