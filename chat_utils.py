@@ -14,13 +14,14 @@ menu = "\n++++ Choose one of the following commands\n \
         c _peer_: to connect to the _peer_ and chat\n \
         ? _term_: to search your chat logs where _term_ appears\n \
         p _#_: to get number <#> sonnet\n \
-        g: to play tic-tac-toe with yourself\n \
+        g1: to play tic-tac-toe with yourself\n \
         q: to leave the chat system\n\n"
 
 S_OFFLINE   = 0
 S_CONNECTED = 1
 S_LOGGEDIN  = 2
 S_CHATTING  = 3
+S_GAMING = 4
 
 SIZE_SPEC = 5
 
@@ -36,6 +37,8 @@ def print_state(state):
         print('Logged in')
     elif state == S_CHATTING:
         print('Chatting')
+    elif state == S_GAMING:
+        print('Gaming')
     else:
         print('Error: wrong state')
 
